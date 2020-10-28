@@ -23,18 +23,28 @@ func main() {
 }
 
 func format(f *os.File) error {
-	//ngx, err := getDelimLine(f)
-	ngx, err := getCustDelimLine(f)
+	ngx, err := ordrFormat(f)
 	if err != nil {
 		return err
 	}
 
-	var ns []ngxStr
-	level := 1
-	for _, n := range ngx {
-		ns = append(ns, parseStr(n, level)...)
-	}
-
-	fmt.Printf("%s", output(ns))
+	fmt.Printf("%s", output(ngx))
 	return nil
 }
+
+//func format(f *os.File) error {
+//	//ngx, err := getDelimLine(f)
+//	ngx, err := getCustDelimLine(f)
+//	if err != nil {
+//		return err
+//	}
+//
+//	var ns []ngxStr
+//	level := 1
+//	for _, n := range ngx {
+//		ns = append(ns, parseStr(n, level)...)
+//	}
+//
+//	fmt.Printf("%s", output(ns))
+//	return nil
+//}
