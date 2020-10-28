@@ -14,6 +14,7 @@ func Test_ordrFormat(t *testing.T) {
 	_f1, _ := os.OpenFile("test/nginx_order_1.conf", os.O_RDONLY, 0755)
 	_f2, _ := os.OpenFile("test/nginx_order_2.conf", os.O_RDONLY, 0755)
 	_f3, _ := os.OpenFile("test/nginx_order_3.conf", os.O_RDONLY, 0755)
+	_f4, _ := os.OpenFile("test/nginx_order_4.conf", os.O_RDONLY, 0755)
 
 	tests := []struct {
 		name    string
@@ -100,6 +101,57 @@ func Test_ordrFormat(t *testing.T) {
 				},
 				{
 					data: "'\"$http_user_agent\" \"$http_x_forwarded_for\"';",
+					tab: 4,
+				},
+				{
+					data: "}",
+					tab: 0,
+				},
+			},
+		},
+
+		{
+			name: "contains comment line in line",
+			args: struct{ f *os.File }{f: _f4},
+			wantNgs: []ngxString{
+				{
+					data: "#pid        logs/nginx.pid;",
+					tab: 0,
+				},
+				{
+					data: "events {",
+					tab: 0,
+				},
+				{
+					data: "worker_connections 1024;",
+					tab: 4,
+				},
+				{
+					data: "# server {",
+					tab: 4,
+				},
+				{
+					data: "#     listen 80;",
+					tab: 4,
+				},
+				{
+					data: "#     location / {",
+					tab: 4,
+				},
+				{
+					data: "#         root html;",
+					tab: 4,
+				},
+				{
+					data: "#         index index.html index.htm;",
+					tab: 4,
+				},
+				{
+					data: "#     }",
+					tab: 4,
+				},
+				{
+					data: "# }",
 					tab: 4,
 				},
 				{

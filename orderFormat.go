@@ -8,6 +8,7 @@ import (
 )
 
 var tab = 4
+
 const spaceLine = " "
 const blankLine = "[+n+]"
 
@@ -22,6 +23,7 @@ type ngxString struct {
 // 2. 以'}'结尾。 当前行需要回缩tab值,下行保持不变
 // 3. 以';'结尾。下行tab值保持不变
 // 4. 以非上面两类结尾，下行tab值保持不变
+// 5. 如果首字符是'#', 那么tab保存为当前值，不再进行调整
 func ordrFormat(f *os.File) (ngs []ngxString, err error) {
 	defer f.Close()
 
@@ -31,7 +33,13 @@ func ordrFormat(f *os.File) (ngs []ngxString, err error) {
 
 	for scanner.Scan() {
 		text := strings.TrimSpace(scanner.Text())
-
+		if thePrefixChar(text) == '#' {
+			ngs = append(ngs, ngxString{
+				data: text,
+				tab:  tab * tabIdx,
+			})
+			continue
+		}
 		switch theSuffixChar(text) {
 		case ';':
 			ngs = append(ngs, ngxString{
@@ -77,6 +85,15 @@ func theSuffixChar(str string) byte {
 	}
 
 	return 0
+}
+
+func thePrefixChar(str string) byte {
+	str = strings.TrimSpace(str)
+	if len(str) == 0 {
+		return 0
+	}
+
+	return str[0]
 }
 
 func output(ngxs []ngxString) string {
