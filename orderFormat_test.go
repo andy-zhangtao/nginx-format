@@ -97,11 +97,11 @@ func Test_ordrFormat(t *testing.T) {
 				},
 				{
 					data: "'$status $body_bytes_sent \"$http_referer\" '",
-					tab: 4,
+					tab: 8,
 				},
 				{
 					data: "'\"$http_user_agent\" \"$http_x_forwarded_for\"';",
-					tab: 4,
+					tab: 8,
 				},
 				{
 					data: "}",

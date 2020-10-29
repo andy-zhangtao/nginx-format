@@ -22,12 +22,13 @@ type ngxString struct {
 // 1. 以'{'结尾。 下行tab+1
 // 2. 以'}'结尾。 当前行需要回缩tab值,下行保持不变
 // 3. 以';'结尾。下行tab值保持不变
-// 4. 以非上面两类结尾，下行tab值保持不变
+// 4. 以非上面两类结尾，如果上面一行是';'则下行tab值保持不变，同时标记下行需要tab+1. 否则tab值保持不变
 // 5. 如果首字符是'#', 那么tab保存为当前值，不再进行调整
 func ordrFormat(f *os.File) (ngs []ngxString, err error) {
 	defer f.Close()
 
 	var tabIdx = 0
+	var makeUpTab = 0
 
 	scanner := bufio.NewScanner(f)
 
@@ -42,10 +43,19 @@ func ordrFormat(f *os.File) (ngs []ngxString, err error) {
 		}
 		switch theSuffixChar(text) {
 		case ';':
-			ngs = append(ngs, ngxString{
-				data: text,
-				tab:  tab * tabIdx,
-			})
+			if makeUpTab > 0 {
+				ngs = append(ngs, ngxString{
+					data: text,
+					tab:  tab * (tabIdx + makeUpTab),
+				})
+				makeUpTab = 0
+			} else {
+				ngs = append(ngs, ngxString{
+					data: text,
+					tab:  tab * (tabIdx),
+				})
+			}
+
 		case '{':
 			ngs = append(ngs, ngxString{
 				data: text,
@@ -58,11 +68,25 @@ func ordrFormat(f *os.File) (ngs []ngxString, err error) {
 				data: text,
 				tab:  tab * tabIdx,
 			})
-		default:
+		case 0:
 			ngs = append(ngs, ngxString{
-				data: text,
-				tab:  tab * tabIdx,
+				data: "",
+				tab:  0,
 			})
+		default:
+			if makeUpTab == 0 {
+				ngs = append(ngs, ngxString{
+					data: text,
+					tab:  tab * tabIdx,
+				})
+				makeUpTab++
+			} else {
+				ngs = append(ngs, ngxString{
+					data: text,
+					tab:  tab * (tabIdx + makeUpTab),
+				})
+			}
+
 		}
 	}
 
