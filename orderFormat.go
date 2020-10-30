@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -24,16 +22,16 @@ type ngxString struct {
 // 3. 以';'结尾。下行tab值保持不变
 // 4. 以非上面两类结尾，如果上面一行是';'则下行tab值保持不变，同时标记下行需要tab+1. 否则tab值保持不变
 // 5. 如果首字符是'#', 那么tab保存为当前值，不再进行调整
-func ordrFormat(f *os.File) (ngs []ngxString, err error) {
-	defer f.Close()
+func ordrFormat(ngx []string) (ngs []ngxString, err error) {
+	//defer f.Close()
 
 	var tabIdx = 0
 	var makeUpTab = 0
 
-	scanner := bufio.NewScanner(f)
+	//scanner := bufio.NewScanner(f)
 
-	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
+	for _, text := range ngx {
+		//text := strings.TrimSpace(scanner.Text())
 		if thePrefixChar(text) == '#' {
 			ngs = append(ngs, ngxString{
 				data: text,
@@ -90,9 +88,13 @@ func ordrFormat(f *os.File) (ngs []ngxString, err error) {
 		}
 	}
 
-	if err = scanner.Err(); err != nil {
-		return
-	}
+	//for scanner.Scan() {
+	//
+	//}
+	//
+	//if err = scanner.Err(); err != nil {
+	//	return
+	//}
 
 	return
 }

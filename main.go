@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 var f *os.File
@@ -23,12 +25,23 @@ func main() {
 }
 
 func format(f *os.File) error {
-	ngx, err := ordrFormat(f)
+	var ngx []string
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		text := strings.TrimSpace(scanner.Text())
+		ngx = append(ngx, text)
+	}
+
+	ngs, err := ordrFormat(ngx)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%s", output(ngx))
+	fmt.Printf("%s", output(ngs))
 	return nil
 }
 
