@@ -1,48 +1,70 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"log"
+	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 var f *os.File
 var err error
 
 func main() {
-	f, err = os.OpenFile("test/nginx-test.conf", os.O_RDONLY, 0755)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	err = format(f)
+	r := gin.Default()
+	r.Use(cors.New(cors.Config{AllowAllOrigins: true}))
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	r.POST("/transfer", func(c *gin.Context) {
+		message := c.PostForm("nginx")
+
+		ngs, err := format(message)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "Faile",
+				"error":  err.Error(),
+			})
+			return
+		}
+
+		c.String(http.StatusOK, ngs)
+	})
+	r.Run()
+
 }
 
-func format(f *os.File) error {
+func format(str string) (string, error) {
 	var ngx []string
 
-	defer f.Close()
+	//defer f.Close()
+	//
+	//scanner := bufio.NewScanner(f)
+	//
+	//for scanner.Scan() {
+	//	text := strings.TrimSpace(scanner.Text())
+	//	ngx = append(ngx, text)
+	//}
 
-	scanner := bufio.NewScanner(f)
-
-	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
+	strList := strings.Split(str, "\n")
+	for _, s := range strList {
+		text := strings.TrimSpace(s)
 		ngx = append(ngx, text)
 	}
 
 	ngs, err := ordrFormat(ngx)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("%s", output(ngs))
-	return nil
+	//fmt.Printf("%s", output(ngs))
+	return output(ngs), nil
 }
 
 //func format(f *os.File) error {
